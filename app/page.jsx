@@ -4,8 +4,10 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 
 // Converter is loaded dynamically so browser APIs (DOMParser, Blob, etc.)
 // are never evaluated during server-side rendering.
-async function getConverter() {
-  return import('../lib/converter');
+let _converterPromise = null;
+function getConverter() {
+  if (!_converterPromise) _converterPromise = import('../lib/converter');
+  return _converterPromise;
 }
 
 export default function Page() {
@@ -206,8 +208,8 @@ export default function Page() {
           {file ? (
             <div className="file-chip">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M8 1.5H4a1 1 0 00-1 1v9a1 1 0 001 1h6a1 1 0 001-1V5L8 1.5z" stroke="#e87722" strokeWidth="1.2"/>
-                <path d="M8 1.5V5h3.5" stroke="#e87722" strokeWidth="1.2" strokeLinecap="round"/>
+                <path d="M8 1.5H4a1 1 0 00-1 1v9a1 1 0 001 1h6a1 1 0 001-1V5L8 1.5z" stroke="#FF6B18" strokeWidth="1.2"/>
+                <path d="M8 1.5V5h3.5" stroke="#FF6B18" strokeWidth="1.2" strokeLinecap="round"/>
               </svg>
               {file.name}
               <button className="file-chip-remove" onClick={clearFile} title="Remove">×</button>
@@ -216,8 +218,8 @@ export default function Page() {
             <>
               <div className="upload-icon">
                 <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                  <path d="M11 15V7M11 7l-4 4M11 7l4 4" stroke="#e87722" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M4 17h14" stroke="#e87722" strokeWidth="1.7" strokeLinecap="round"/>
+                  <path d="M11 15V7M11 7l-4 4M11 7l4 4" stroke="#FF6B18" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 17h14" stroke="#FF6B18" strokeWidth="1.7" strokeLinecap="round"/>
                 </svg>
               </div>
               <p className="upload-text">
