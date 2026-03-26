@@ -69,17 +69,24 @@ html, body {
 .tooltip-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--muted);
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
   cursor: pointer;
   user-select: none;
   flex-shrink: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px 4px 8px;
+  transition: border-color 0.15s, background 0.15s;
 }
+.tooltip-toggle:hover { border-color: #c8cdd9; background: #f0f1f5; }
 .tooltip-toggle input { display: none; }
 .toggle-track {
-  width: 28px;
-  height: 15px;
+  width: 32px;
+  height: 17px;
   background: #d1d5db;
   border-radius: 99px;
   position: relative;
@@ -88,17 +95,22 @@ html, body {
 }
 .toggle-thumb {
   position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 11px;
-  height: 11px;
+  top: 2.5px;
+  left: 2.5px;
+  width: 12px;
+  height: 12px;
   background: #fff;
   border-radius: 50%;
   transition: left 0.15s;
-  box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
 }
 .tooltip-toggle input:checked + .toggle-track { background: var(--orange); }
-.tooltip-toggle input:checked + .toggle-track .toggle-thumb { left: 15px; }
+.tooltip-toggle input:checked + .toggle-track .toggle-thumb { left: 17.5px; }
+.tooltip-toggle-label-off { display: none; }
+.tooltip-toggle input:checked ~ .tooltip-toggle-label-on  { display: inline; }
+.tooltip-toggle input:checked ~ .tooltip-toggle-label-off { display: none; }
+.tooltip-toggle input:not(:checked) ~ .tooltip-toggle-label-on  { display: none; }
+.tooltip-toggle input:not(:checked) ~ .tooltip-toggle-label-off { display: inline; }
 
 /* ── Header ─────────────────────────────────────────────────────── */
 .header {

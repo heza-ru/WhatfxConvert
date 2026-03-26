@@ -347,10 +347,11 @@ function GuideCard({ item, onPreview, onPrint, onDocx, onPptx, onRetry, onDelete
                 Preview
               </button>
 
-              <label className="tooltip-toggle" title="Include step tooltips in exports">
+              <label className="tooltip-toggle" title="Toggle tooltip overlays on exported screenshots">
                 <input type="checkbox" checked={withTooltips} onChange={e => setWithTooltips(e.target.checked)} />
                 <span className="toggle-track"><span className="toggle-thumb" /></span>
-                Tooltips
+                <span className="tooltip-toggle-label-on">Tooltips on</span>
+                <span className="tooltip-toggle-label-off">Tooltips off</span>
               </label>
 
               <button className="btn-action" onClick={() => onPrint(withTooltips)} title="Open print view to save as PDF">
