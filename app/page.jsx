@@ -17,6 +17,7 @@ export default function Page() {
   const [availTopics, setAvailTopics]   = useState([]);
   const [selected, setSelected]         = useState(new Set());
   const [dragging, setDragging]         = useState(false);
+  const [fileFormat, setFileFormat]     = useState('odarc');
   const [loading, setLoading]           = useState(true);
   const [fading, setFading]             = useState(false);
   const fileInputRef                    = useRef(null);
@@ -35,14 +36,17 @@ export default function Page() {
   // ── Handle file selection ───────────────────────────────────────
   const handleFile = async (f) => {
     if (!f) return;
-    if (!f.name.endsWith('.odarc')) { alert('Please choose an .odarc file.'); return; }
+    const isDkp   = f.name.toLowerCase().endsWith('.dkp');
+    const isOdarc = f.name.toLowerCase().endsWith('.odarc');
+    if (!isDkp && !isOdarc) { alert('Please choose an .odarc or .dkp file.'); return; }
     setFile(f);
+    setFileFormat(isDkp ? 'dkp' : 'odarc');
     setAvailTopics([]);
     setSelected(new Set());
     setInspecting(true);
     try {
-      const { inspectOdarc } = await getConverter();
-      const topics = await inspectOdarc(f);
+      const conv = await getConverter();
+      const topics = isDkp ? await conv.inspectDkp(f) : await conv.inspectOdarc(f);
       setAvailTopics(topics);
       setSelected(new Set(topics.map(t => t.id)));
     } catch {
@@ -57,13 +61,15 @@ export default function Page() {
     setFile(null);
     setAvailTopics([]);
     setSelected(new Set());
+    setFileFormat('odarc');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   // ── Run conversion for a given item id ─────────────────────────
   const runConversion = useCallback(async (id, fileObj, topicIds) => {
+    const isDkp = fileObj.name.toLowerCase().endsWith('.dkp');
     try {
-      const { extractTopics, generatePrintHtml, getLogoB64 } = await getConverter();
+      const { extractTopics, extractDkpTopics, generatePrintHtml, getLogoB64 } = await getConverter();
       const logoB64 = await getLogoB64();
 
       let prog = 8;
@@ -74,7 +80,9 @@ export default function Page() {
         patchItem(id, { log: [...log], progress: prog });
       };
 
-      const topics = await extractTopics(fileObj, topicIds, onProgress);
+      const topics = isDkp
+        ? await extractDkpTopics(fileObj, topicIds, onProgress)
+        : await extractTopics(fileObj, topicIds, onProgress);
 
       patchItem(id, { log: [...log, 'Generating document…'], progress: 93 });
 
@@ -223,16 +231,16 @@ export default function Page() {
                 </svg>
               </div>
               <p className="upload-text">
-                Drop an <strong>.odarc</strong> file here, or{' '}
+                Drop an <strong>.odarc</strong> or <strong>.dkp</strong> file here, or{' '}
                 <strong onClick={() => fileInputRef.current?.click()}>browse</strong>
               </p>
-              <p className="upload-hint">Converts to an annotated PDF with screenshots and step tooltips</p>
+              <p className="upload-hint">Supports Oracle UPK (.odarc) and SAP Enable Now (.dkp) · Exports to PDF, DOCX, PPTX</p>
             </>
           )}
           <input
             ref={fileInputRef}
             type="file"
-            accept=".odarc"
+            accept=".odarc,.dkp"
             style={{ display: 'none' }}
             onChange={e => handleFile(e.target.files[0])}
           />
@@ -242,7 +250,7 @@ export default function Page() {
         {inspecting && (
           <div className="inspect-row">
             <span className="spinner" />
-            Detecting processes…
+            Detecting content…
           </div>
         )}
 
@@ -250,7 +258,7 @@ export default function Page() {
         {!inspecting && availTopics.length > 1 && (
           <div className="topic-picker">
             <div className="topic-picker-header">
-              <span className="topic-picker-label">Processes to include</span>
+              <span className="topic-picker-label">{fileFormat === 'dkp' ? 'Slides to include' : 'Processes to include'}</span>
               <div className="topic-picker-actions">
                 <button className="topic-link" onClick={() => setSelected(new Set(availTopics.map(t => t.id)))}>All</button>
                 <button className="topic-link" style={{ color: '#6b7280' }} onClick={() => setSelected(new Set())}>None</button>
@@ -269,7 +277,7 @@ export default function Page() {
                     })}
                   />
                   <span className="topic-item-title">{t.title}</span>
-                  <span className="topic-item-num">Process {i + 1}</span>
+                  <span className="topic-item-num">{fileFormat === 'dkp' ? `Slide ${i + 1}` : `Process ${i + 1}`}</span>
                 </label>
               ))}
             </div>
